@@ -430,10 +430,8 @@ ipcMain.on('validate-client', (event) => {
 })
 
 
-ipcMain.on('new-os', async (event,os)=>{
-  console.log(os)
+ipcMain.on('new-os', async (event, os) => {
   try {
-    console.log(os.idClient, typeof os.idClient)
     const newOs = new osModel({
       idCliente: os.idClient,
       status: os.status,
@@ -449,23 +447,27 @@ ipcMain.on('new-os', async (event,os)=>{
       acessorios: os.acessorios,
       total: os.total,
       formasPagamento: os.formasPagamento
-       
-
     })
-      await  newOs.save()
-      dialog.showMessageBox({
-        type: 'info',
-        title: "Aviso",
-        message: "Os adicionado com sucesso",
-        buttons: ['OK']
-      }).then((result)=>{
-        if(result.response === 0){
-         event.reply('reset-form') 
-        }
-         
-      })
+
+    await newOs.save()
+
+    const result = await dialog.showMessageBox({
+      type: 'question',
+      title: "OS adicionada com sucesso",
+      message: "Deseja imprimir a Ordem de Serviço agora?",
+      buttons: ['Sim', 'Não'],
+      defaultId: 0, // 'Sim'
+      cancelId: 1   // 'Não'
+    })
+
+    if (result.response === 0) {
+      // Chamar função de impressão diretamente com o ID da OS
+      imprimirOS(newOs._id)
+    }
+
+    event.reply('reset-form') // Resetar o formulário após o processo
   } catch (error) {
-    console.log(error)
+    console.error("Erro ao criar nova OS:", error)
   }
 })
 //=============================================== Buscar OS========================================
@@ -702,39 +704,108 @@ ipcMain.on('print-os', (event) =>{
                 const dataClient  = await clientModel.find({ _id: dataOS.idCliente}) 
                 console.log(dataClient)
                 // Impressão 
-                const doc = new jsPDF('p', 'mm', 'a4')
-                        const imagePath = path.join(__dirname, 'src', 'public', 'img', 'logo.png')
-                        const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' })
-                        doc.addImage(imageBase64, 'PNG', 5, -5)
-                        doc.setFontSize(18)
-                        doc.text("OS:", 14, 45) //x=14, y=45
-                        
-                        // Extração dos dados da OS e do cliente vinculado
+// Impressão 
+const doc = new jsPDF('p', 'mm', 'a4')
 
-                        // Texto do termo de serviço
-                        doc.setFontSize(10)
-                        const termo = `
+// Logo ajustada para o topo
+const imagePath = path.join(__dirname, 'src', 'public', 'img', 'logo.png')
+const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' })
+doc.addImage(imageBase64, 'PNG', 5, -23, 80, 80) // x=10, y=10, largura=40, altura=20
+
+// Título e cabeçalho
+doc.setFontSize(18)
+doc.text(`Ordem de Serviço - ${dataOS._id}`, 14, 40) // abaixo da logo
+
+// Começo do conteúdo
+doc.setFontSize(12)
+let y = 50
+
+// Dados do Cliente
+const client = dataClient[0] || {}
+
+doc.text("Dados do Cliente:", 14, y)
+y += 6
+doc.text(`Nome: ${client.nomeClient || ''}`, 14, y)
+y += 6
+doc.text(`CPF: ${client.cpfCliente || ''}`, 14, y)
+y += 6
+doc.text(`Email: ${client.emailCliente || ''}`, 14, y)
+y += 6
+doc.text(`Telefone: ${client.phoneCliente || ''}`, 14, y)
+y += 6
+doc.text(`Endereço: ${client.addressCliente || ''}, Nº ${client.numberCliente || ''} ${client.complementCliente || ''}`, 14, y)
+y += 6
+doc.text(`Bairro: ${client.bairroCliente || ''}`, 14, y)
+y += 6
+doc.text(`Cidade/UF: ${client.cityCliente || ''} - ${client.ufCliente || ''}`, 14, y)
+y += 10
+
+// Dados da OS
+doc.text("Informações da Ordem de Serviço:", 14, y)
+y += 6
+doc.text(`Status: ${dataOS.status}`, 14, y)
+y += 6
+doc.text(`Funcionário Responsável: ${dataOS.funcionarioResponsavel}`, 14, y)
+y += 6
+doc.text(`Bicicleta: ${dataOS.bicicleta}`, 14, y)
+y += 6
+doc.text(`Número do Quadro: ${dataOS.numeroQuadro}`, 14, y)
+y += 6
+doc.text(`Cor: ${dataOS.corBicicleta}`, 14, y)
+y += 6
+doc.text(`Tipo de Manutenção: ${dataOS.tipoManutencao}`, 14, y)
+y += 6
+doc.text(`Previsão de Entrega: ${dataOS.previsaoEntrega}`, 14, y)
+y += 6
+doc.text(`Observação do Cliente: ${dataOS.observacaoCliente}`, 14, y)
+y += 6
+doc.text(`Conclusão Técnica: ${dataOS.conclusaoTecnico}`, 14, y)
+y += 6
+doc.text(`Peças Trocadas: ${dataOS.pecasTroca}`, 14, y)
+y += 6
+doc.text(`Acessórios: ${dataOS.acessorios}`, 14, y)
+y += 6
+doc.text(`Forma de Pagamento: ${dataOS.formasPagamento}`, 14, y)
+y += 6
+doc.text(`Total: R$ ${dataOS.total.toFixed(2)}`, 14, y)
+y += 10
+
+// Termo de Serviço com mesmo tamanho de fonte
+doc.setFontSize(12)
+const termo = `
 Termo de Serviço e Garantia
 
-O cliente autoriza a realização dos serviços técnicos descritos nesta ordem, ciente de que:
+O cliente autoriza a realização dos serviços descritos nesta ordem, ciente e de acordo com as seguintes condições:
 
-- Diagnóstico e orçamento são gratuitos apenas se o serviço for aprovado. Caso contrário, poderá ser cobrada taxa de análise.
-- Peças substituídas poderão ser retidas para descarte ou devolvidas mediante solicitação no ato do serviço.
-- A garantia dos serviços prestados é de 90 dias, conforme Art. 26 do Código de Defesa do Consumidor, e cobre exclusivamente o reparo executado ou peça trocada, desde que o equipamento não tenha sido violado por terceiros.
-- Não nos responsabilizamos por dados armazenados. Recomenda-se o backup prévio.
-- Equipamentos não retirados em até 90 dias após a conclusão estarão sujeitos a cobrança de armazenagem ou descarte, conforme Art. 1.275 do Código Civil.
-- O cliente declara estar ciente e de acordo com os termos acima.`
+- O diagnóstico e orçamento são gratuitos apenas se o serviço for aprovado. Caso o cliente opte por não realizá-lo, poderá ser cobrada taxa referente à avaliação técnica.
+- Peças substituídas podem ser devolvidas ao cliente, mediante solicitação no ato do serviço. Caso contrário, serão descartadas de forma apropriada.
+- A garantia dos serviços prestados é de 90 dias, conforme o Art. 26 do Código de Defesa do Consumidor, e cobre exclusivamente os reparos executados e peças trocadas, desde que a bicicleta não tenha sido alterada ou reparada por terceiros após o serviço.
+- Não nos responsabilizamos por objetos ou acessórios deixados na bicicleta que não tenham sido informados previamente.
+- Bicicletas não retiradas em até 90 dias após a conclusão do serviço poderão ser cobradas por taxa de armazenagem ou encaminhadas para descarte, conforme o Art. 1.275 do Código Civil.
 
-                        // Inserir o termo no PDF
-                        doc.text(termo, 14, 60, { maxWidth: 180 }) // x=14, y=60, largura máxima para quebrar o texto automaticamente
+O cliente declara estar ciente e de acordo com os termos acima.`
 
-                        // Definir o caminho do arquivo temporário e nome do arquivo
-                        const tempDir = app.getPath('temp')
-                        const filePath = path.join(tempDir, 'os.pdf')
-                        // salvar temporariamente o arquivo
-                        doc.save(filePath)
-                        // abrir o arquivo no aplicativo padrão de leitura de pdf do computador do usuário
-                        shell.openPath(filePath)
+doc.text(termo, 14, y, { maxWidth: 180 })
+
+// Ajustar o y para o fim do termo
+y += 100// ajuste conforme necessário para seu layout
+
+// Espaço para assinatura do cliente
+doc.setFontSize(12)
+doc.text("_________________________________________", 14, y)
+doc.text("Assinatura do Cliente", 14, y + 6)
+
+// Espaço para data de retirada
+doc.text("_________________________________________", 120, y)
+doc.text("Data de Retirada", 120, y + 6)
+
+
+// Caminho e abertura do arquivo
+const tempDir = app.getPath('temp')
+const filePath = path.join(tempDir, 'os.pdf')
+doc.save(filePath)
+shell.openPath(filePath)
+
                 
             } else {
                 dialog.showMessageBox({
@@ -758,6 +829,119 @@ O cliente autoriza a realização dos serviços técnicos descritos nesta ordem,
     } 
 })
 })
+const imprimirOS = async (osId) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(osId)) {
+      return dialog.showMessageBox({
+        type: 'error',
+        title: "Erro",
+        message: "ID de OS inválido para impressão.",
+        buttons: ['OK']
+      })
+    }
+
+    const dataOS = await osModel.findById(osId)
+    if (!dataOS) {
+      return dialog.showMessageBox({
+        type: 'warning',
+        title: "Aviso!",
+        message: "OS não encontrada.",
+        buttons: ['OK']
+      })
+    }
+
+    const dataClient = await clientModel.find({ _id: dataOS.idCliente })
+
+    // Geração do PDF (você já tem esse trecho pronto)
+    const doc = new jsPDF('p', 'mm', 'a4')
+    const imagePath = path.join(__dirname, 'src', 'public', 'img', 'logo.png')
+    const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' })
+    doc.addImage(imageBase64, 'PNG', 5, -23, 80, 80)
+
+    doc.setFontSize(18)
+    doc.text(`Ordem de Serviço - ${dataOS._id}`, 14, 40)
+
+    doc.setFontSize(12)
+    let y = 50
+
+    const client = dataClient[0] || {}
+    doc.text("Dados do Cliente:", 14, y)
+    y += 6
+    doc.text(`Nome: ${client.nomeClient || ''}`, 14, y)
+    y += 6
+    doc.text(`CPF: ${client.cpfCliente || ''}`, 14, y)
+    y += 6
+    doc.text(`Email: ${client.emailCliente || ''}`, 14, y)
+    y += 6
+    doc.text(`Telefone: ${client.phoneCliente || ''}`, 14, y)
+    y += 6
+    doc.text(`Endereço: ${client.addressCliente || ''}, Nº ${client.numberCliente || ''} ${client.complementCliente || ''}`, 14, y)
+    y += 6
+    doc.text(`Bairro: ${client.bairroCliente || ''}`, 14, y)
+    y += 6
+    doc.text(`Cidade/UF: ${client.cityCliente || ''} - ${client.ufCliente || ''}`, 14, y)
+    y += 10
+
+    doc.text("Informações da Ordem de Serviço:", 14, y)
+    y += 6
+    doc.text(`Status: ${dataOS.status}`, 14, y)
+    y += 6
+    doc.text(`Funcionário Responsável: ${dataOS.funcionarioResponsavel}`, 14, y)
+    y += 6
+    doc.text(`Bicicleta: ${dataOS.bicicleta}`, 14, y)
+    y += 6
+    doc.text(`Número do Quadro: ${dataOS.numeroQuadro}`, 14, y)
+    y += 6
+    doc.text(`Cor: ${dataOS.corBicicleta}`, 14, y)
+    y += 6
+    doc.text(`Tipo de Manutenção: ${dataOS.tipoManutencao}`, 14, y)
+    y += 6
+    doc.text(`Previsão de Entrega: ${dataOS.previsaoEntrega}`, 14, y)
+    y += 6
+    doc.text(`Observação do Cliente: ${dataOS.observacaoCliente}`, 14, y)
+    y += 6
+    doc.text(`Conclusão Técnica: ${dataOS.conclusaoTecnico}`, 14, y)
+    y += 6
+    doc.text(`Peças Trocadas: ${dataOS.pecasTroca}`, 14, y)
+    y += 6
+    doc.text(`Acessórios: ${dataOS.acessorios}`, 14, y)
+    y += 6
+    doc.text(`Forma de Pagamento: ${dataOS.formasPagamento}`, 14, y)
+    y += 6
+    doc.text(`Total: R$ ${dataOS.total.toFixed(2)}`, 14, y)
+    y += 10
+
+    doc.setFontSize(12)
+    const termo = `
+Termo de Serviço e Garantia
+
+O cliente autoriza a realização dos serviços descritos nesta ordem, ciente e de acordo com as seguintes condições:
+
+- O diagnóstico e orçamento são gratuitos apenas se o serviço for aprovado. Caso o cliente opte por não realizá-lo, poderá ser cobrada taxa referente à avaliação técnica.
+- Peças substituídas podem ser devolvidas ao cliente, mediante solicitação no ato do serviço. Caso contrário, serão descartadas de forma apropriada.
+- A garantia dos serviços prestados é de 90 dias, conforme o Art. 26 do Código de Defesa do Consumidor, e cobre exclusivamente os reparos executados e peças trocadas, desde que a bicicleta não tenha sido alterada ou reparada por terceiros após o serviço.
+- Não nos responsabilizamos por objetos ou acessórios deixados na bicicleta que não tenham sido informados previamente.
+- Bicicletas não retiradas em até 90 dias após a conclusão do serviço poderão ser cobradas por taxa de armazenagem ou encaminhadas para descarte, conforme o Art. 1.275 do Código Civil.
+
+O cliente declara estar ciente e de acordo com os termos acima.`
+    doc.text(termo, 14, y, { maxWidth: 180 })
+    y += 100
+
+    doc.text("_________________________________________", 14, y)
+    doc.text("Assinatura do Cliente", 14, y + 6)
+    doc.text("_________________________________________", 120, y)
+    doc.text("Data de Retirada", 120, y + 6)
+
+    const tempDir = app.getPath('temp')
+    const filePath = path.join(tempDir, 'os.pdf')
+    doc.save(filePath)
+    shell.openPath(filePath)
+
+  } catch (error) {
+    console.error("Erro ao imprimir OS:", error)
+  }
+}
+
 // Alert erro 
 ipcMain.on('show-error-box', (event, message) => {
   dialog.showMessageBox({

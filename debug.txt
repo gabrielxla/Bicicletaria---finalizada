@@ -3,3 +3,10 @@ Colocar peças para trocar na os
 colocar campo para acessorios
 trocar a mensagem
 e mudar o atualizar
+
+idClient.value = c._id
+                nameClient.value = c.nomeClient
+                phoneClient.value = c.phoneCliente
+                cpfCliente.value = c.cpfCliente
+                input.value = ""
+                suggestionList.innerHTML = ""

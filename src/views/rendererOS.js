@@ -108,6 +108,7 @@ input.addEventListener('input',() =>{
                 cpfCliente.value = c.cpfCliente
                 input.value = ""
                 suggestionList.innerHTML = ""
+                inputNameClient.disabled = true
             })
         })
     }) 
@@ -235,6 +236,7 @@ api.renderOS((event, dataOS) => {
     btnDelete.disabled = false
     btnImprimir.disabled = false
     btnCreate.disabled = true
+    inputNameClient.disabled = true
     
 })
 
