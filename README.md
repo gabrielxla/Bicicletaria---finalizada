@@ -10,6 +10,7 @@ Sistema para gestão de serviços de uma assistência técnica de bicicletas des
 ![](src/public/img/cliente.PNG)
 ### Ordem de serviço
 ![](src/public/img/cadastroOS.PNG)
+![](src/public/img/impressao.PNG)
 ### Relatório de clientes
 ![](src/public/img/relatorioCliente.PNG)
 ### Relatório OS Pendentes
