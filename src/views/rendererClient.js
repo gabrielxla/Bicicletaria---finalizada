@@ -1,6 +1,3 @@
-//const { ipcMain } = require("electron")
-
-// buscar CEP
 function buscarCEP(){
     let cep =document.getElementById('inputCEpClient').value
     let urlAPI = `https://viacep.com.br/ws/${cep}/json/`
@@ -18,12 +15,9 @@ function buscarCEP(){
     }
     function teste(){
         let lap=document.getElementById('floatingTextarea').value
-        console.log(lap)
+       
     }
-// vetor global do blau
 let arrayClient = []
-
-// buscar cliente
 const foco = document.getElementById('searchClient')
 document.addEventListener('DOMContentLoaded', () => {
     btnUpdate.disabled = true
@@ -31,8 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     foco.focus()
 })
-
-// captura dos dados dos inputs
 let frmClient = document.getElementById("frmClient")
 let nameClient = document.getElementById("inputNameClient")
 let cpfClient = document.getElementById("inputCPFClient")
@@ -45,10 +37,8 @@ let complementClient = document.getElementById("inputCOMClient")
 let bairroClient = document.getElementById("inputBAIClient")
 let cityClient = document.getElementById("inputESTClient")
 let ufClient = document.getElementById("uf")
-// captura do id do cliente 
 let id = document.getElementById('idClient')
 
-// Função para manipular o enter
 function teclaEnter(event){
     if (event.key === "Enter") {
         event.preventDefault()
@@ -59,25 +49,14 @@ function restaurarEnter(){
     frmClient.removeEventListener('keydown', teclaEnter)
 }
 frmClient.addEventListener('keydown', teclaEnter)
-//===========================================================
 frmClient.addEventListener("submit", async(event)=> {
     event.preventDefault()
-    console.log(nameClient.value,cpfClient.value,emailClient.value,phoneClient.value,cepClient.value,addressClient.value,numberClient.value,complementClient.value,bairroClient.value,cityClient.value,ufClient.value)
-
-// Limpa o CPF antes de salvar no banco
 let cpfSemFormatacao = cpfClient.value.replace(/\D/g, "");
-    // 1. Verificar se o CPF é válido antes de continuar
     if (!validarCPF()) {
         window.api.showErrorBox("CPF inválido! Corrija antes de continuar.");
-        return; // Interrompe o envio caso o CPF seja inválido
-        
+        return;    
     }
-//console.log(nameClient.value, cpfClient.value, emailClient.value, phoneClientClient.value, cepClient.value, addressClient.value, numClient.value, complementClient.value, bairroClient.value, cidadeClient.value, ufClient.value, id.value)
-//estratégia usada para utilizar o submit para criar um novo cliente ou alterar os dados do cliente, se existir id significa que existe um cliente se não significa que é para adicionar um novo cliente
   if (id.value === "") {
-    //Executar o método para alterar os dados do cliente
-    //Crair um objeto para armazenar os dados do cliente antes de enviar ao main 
-    console.log(id.value)
     const client = {
         nameCli: nameClient.value,
         cpfCli: cpfSemFormatacao,
@@ -92,12 +71,7 @@ let cpfSemFormatacao = cpfClient.value.replace(/\D/g, "");
         ufCli: ufClient.value
     }
     api.newClient(client)
-    //Enviar ao main o objeto client - Passo 2 (fluxo)
-    //Uso do preload.js
 } else {
-    //Executar o método para alterar os dados do cliente
-    //Crair um objeto para armazenar os dados do cliente antes de enviar ao main 
-    console.log(id.value)
     const client = {
         idCli: id.value,
         nameCli: nameClient.value,
@@ -113,13 +87,11 @@ let cpfSemFormatacao = cpfClient.value.replace(/\D/g, "");
         ufCli: ufClient.value
     }
     api.updateClient(client)
-    //Enviar ao main o objeto client - Passo 2 (fluxo)
-    //Uso do preload.js
+
 }})
-// ================= CRUD READ ============================================================
 function buscarCliente () {
    let name = document.getElementById('searchClient').value
-   console.log(name)
+ 
    if (name ===""){
     api.validateSearch()
     foco.focus()
@@ -128,7 +100,7 @@ function buscarCliente () {
     }else{
     api.searchNameClient(name)
     api.renderClient((event,dataClient)=>{
-    console.log(dataClient)
+    
     const dadosCliente = JSON.parse(dataClient)
     arrayClient = dadosCliente
     arrayClient.forEach((c)=> {
@@ -144,7 +116,6 @@ function buscarCliente () {
         bairroClient.value = c.bairroCliente,
         cityClient.value = c.cityCliente,
         ufClient.value = c.ufCliente
-        //Bloqueio do botao adicionar 
         btnCreate.disabled = true
         btnUpdate.disabled = false
         btnDelete.disabled = false
@@ -155,13 +126,13 @@ function buscarCliente () {
    
 }
 
-// Setar o cliente não cadastrado
+
 api.setClient((args) => {
     let campoBusca = document.getElementById('searchClient').value.trim()
 
-    // Regex para verificar se o valor é só número (CPF) teste
+    
     if (/^\d{11}$/.test(campoBusca)) {
-        // É um número → CPF
+    
         cpfClient.focus()
         foco.value = ""
         cpfClient.value = campoBusca
@@ -172,21 +143,16 @@ api.setClient((args) => {
         cpfClient.value = campoBusca
     }
     else {
-        // Não é número → Nome
+     
         nameClient.focus()
         foco.value = ""
         nameClient.value = campoBusca
     }
 })
-
-// ======= Crud Delete =================================================================
 function excluirClient() {
-    console.log(id.value)
+   
     api.deleteClient(id.value)
 }
-
-
-//====== Reset form =======================================================================
 function resetForm() {
 location.reload()
 }
@@ -195,9 +161,8 @@ api.resetForm((args)=>{
     resetForm()
 })
 
-// === Função para aplicar máscara no CPF ===
 function aplicarMascaraCPF(campo) {
-    let cpf = campo.value.replace(/\D/g, ""); // Remove caracteres não numéricos
+    let cpf = campo.value.replace(/\D/g, "");
 
     if (cpf.length > 3) cpf = cpf.replace(/^(\d{3})(\d)/, "$1.$2");
     if (cpf.length > 6) cpf = cpf.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
@@ -237,11 +202,5 @@ function validarCPF() {
     cpfClient.classList.add("input-valido");
     return true;
 }
-
-
-// Adicionar eventos para CPF
 cpfClient.addEventListener("input", () => aplicarMascaraCPF(cpfClient));
 cpfClient.addEventListener("blur", validarCPF);
-
-
-

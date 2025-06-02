@@ -12,7 +12,6 @@
 <body>
     <div class="container">
     <form class="mt-2 row g-3" id="frmOS">
-        <!-- Buscar OS -->
           <div class="col-md-3">
             <label for="inputNumeroOS">N°OS</label>
             <input type="text" class="form-control" id="inputNumeroOS" spellcheck="false" disabled
@@ -20,12 +19,10 @@
         </div>
         
         
-        <!--DATA-->
         <div class="col-md-3">
             <label for="inputdataClient">DATA</label>
             <input type="text"  class="form-control" id="inputdataClient" spellcheck="false" disabled maxlength="30" >
         </div>
-        <!--CLiente-->
         <div class="col-md-6">
             <label for="inputNameClient">Buscar cliente</label>
             <div class="input-group">
@@ -38,21 +35,15 @@
             </div>
             
         </div>
-       <!-- <div class="col-md-1">
-             <button type="button" class="btn btn-primary" id="btnRead2" onclick="BuscarOs()">Buscar</button>
-        </div>-->
         
-        <!--NOME-->
         <div class="col-md-3">
             <label for="inputNomeClient">Nome</label>
             <input type="text"  class="form-control" id="inputNomeClient" spellcheck="false" disabled maxlength="30">
         </div>
-        <!--CPF-->
         <div class="col-md-2">
             <label for="inputCPFClient">CPF</label>
             <input type="text"  class="form-control" id="inputCPFClient" spellcheck="false" disabled maxlength="30">
         </div>
-        <!--ID-->
         <div class="col-md-4">
             <label for="inputIdClient">ID do cliente</label>
             <input type="text"  class="form-control" id="inputIdClient" spellcheck="false" disabled maxlength="15">
@@ -65,7 +56,6 @@
         
         
         <hr class="mt-4 border border-primary border -1">
-        <!-- STATUS-->
         <div class="col-md-2">
             <label for="maintenance-type" class="form-label">Status</label>
             
@@ -78,26 +68,21 @@
             </select>
         </div>
 
-        <!--Funcionario-->
         <div class="col-md-3">
             <label for="inputNameFuncionario" class="form-label">Funcionario</label>
             <input type="text" class="form-control" id="inputNameFuncionario" spellcheck="false" required maxlength="20">
         </div>
         
-        <!--Bicicleta-->
         <div class="col-md-2">
             <label for="inputBIKEClient" class="form-label">Bicicleta/Marca</label>
             <input type="text" class="form-control" id="inputBIKEClient" spellcheck="false" required maxlength="20">
         </div>
-        <!--Numero de Serie-->
         <div class="col-md-3">
             <label for="inputNUMClient" class="form-label">Número do quadro</label>
             <input type="text" class="form-control" id="inputNUMClient" spellcheck="false" required maxlength="15">
         </div>
-        <!--COR-->
         <div class="col-md-2">
             <label for="color" class="form-label">Cor</label>
-            <!-- Select com as opções de cores -->
             <select id="color" name="color" class="form-select">
                 <option value="" disabled selected></option>
                 <option value="red" style="background-color: red;">Vermelho</option>
@@ -113,7 +98,6 @@
                 <option value="white" style="background-color: white;">Branco</option>
             </select>
         </div>
-        <!-- Tipo de manutenção-->
         <div class="col-md-3">
             <label for="maintenance-typeT" class="form-label">Tipo de Manutenção</label>
             
@@ -124,38 +108,31 @@
                 <option value="Corretiva">Corretiva</option>
             </select>
         </div>
-        <!--Previsão para ser entregue-->
     <div class="col-md-3">
         <label for="inputprevisaoClient" class="form-label">Previsão de entrega</label>
         <input type="date" class="form-control" id="inputprevisaoClient" spellcheck="false"  maxlength="100">
     </div>
-    <!--OBSERVAÇÂO DO CLIENTE-->
     <div class="col-md-3">
         <label for="floatingTextareaC" class="form-label">Observação do cliente</label>
         <textarea class="form-control" placeholder="Observação" id="floatingTextareaC"></textarea>
     </div>
-    <!--OBSERVAÇÂO DO Funcionario-->
     <div class="col-md-3">
         <label for="floatingTextareaF" class="form-label">Conclusão do Funcionario</label>
         <textarea class="form-control" placeholder="Conclusão" id="floatingTextareaF"></textarea>
     </div>
-    <!--Peças para Trocar-->
     <div class="col-md-3">
         <label for="floatingTextareaP" class="form-label">Peças para Trocar</label>
         <textarea class="form-control" id="floatingTextareaP"></textarea>
     </div>
-    <!--Acessorios-->
     <div class="col-md-3">
         <label for="floatingTextareaA" class="form-label">Acessorios</label>
         <textarea class="form-control" id="floatingTextareaA"></textarea>
     </div>
-      <!--TOTAL-->
       <div class="col-md-3">
         <label for="inputtotalCliente" class="form-label">Total R$</label>
         <input type="text" class="form-control" id="inputtotalCliente" spellcheck="false"  maxlength="10">
         
     </div>
-     <!-- FORMAS DE PAGAMENTO-->
      <div class="col-md-3">
         <label for="maintenance-typeD" class="form-label">Formas de pagamento</label>
         
@@ -169,7 +146,6 @@
         </select>
     </div>
 
-     <!--BOTAO-->
      <div class="mt-5">
         <button type="submit" class="btn btn-success" id="btnCreate">Adicionar</button>
         <button type="submit" class="btn btn-warning" id="btnUpdate">Editar</button>

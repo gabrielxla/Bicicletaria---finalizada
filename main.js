@@ -16,27 +16,25 @@ const createWindow = () => {
    win = new BrowserWindow({
     width: 1010,
     height: 720,
-   // minimizable: false,
-    //resizable:false,
     webPreferences: {
       preload: path.join(__dirname,'preload.js')
     }
    
   })
-// menu personalizado
+
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
   
   win.loadFile('./src/views/index.html')
-  // recebimento dos pedido do renderizador
+  
   ipcMain.on('client-window', () => {
     clientWindow ()
   })
-   // recebimento dos pedido do renderizador
+   
    ipcMain.on('os-window', () => {
     osWindow ()
   })
 }
-// Janela Sobre
+
 function aboutWindow(){
   nativeTheme.themeSource = 'dark'
   const main = BrowserWindow.getFocusedWindow()
@@ -54,8 +52,8 @@ function aboutWindow(){
   }
   about.loadFile('./src/views/sobre.html')
 }
-//fim da janela sobre
-//janela cliente
+
+
 let client
 function clientWindow() {
   nativeTheme.themeSource = 'dark'
@@ -77,7 +75,7 @@ function clientWindow() {
 client.loadFile('./src/views/cliente.html')
 client.center()
 }
-// janela OS
+
 let os
 function osWindow() {
   nativeTheme.themeSource = 'dark'
@@ -99,7 +97,7 @@ function osWindow() {
 os.loadFile('./src/views/os.html')
 os.center()
 }
-// inicia a aplicação
+
 app.whenReady().then(() => {
     createWindow()
   
@@ -115,7 +113,7 @@ app.whenReady().then(() => {
       app.quit()
     }
   })
-  //reduzir logs nao criticos
+  
   app.commandLine.appendSwitch('log-level','3')
 
 ipcMain.on('db-connect', async (event)=>{
@@ -133,7 +131,7 @@ app.on('before-quit', ()=>{
  desconectar()
 })
 
-  // template do menu
+  
 const  template = [
   {
      label: 'Cadastro',
@@ -145,17 +143,16 @@ const  template = [
   },
   {
       label: 'Ferramentas',
-      submenu: [{label: 'Aplicar Zoom', role: 'zoomIn'},{label: 'Reduzir', role: 'zoomOut'},{ label: 'Restaurar o Zoom', role: 'resetZoom'},{ type: 'separator'},{label: 'Reiniciar', role: 'reload'},{ label: 'Ferramenta do desenvolvedor', role:'toggleDevTools'}]
+      submenu: [{label: 'Aplicar Zoom', role: 'zoomIn'},{label: 'Reduzir', role: 'zoomOut'},{ label: 'Restaurar o Zoom', role: 'resetZoom'}]
   },
   {
       label: 'Ajuda',
       submenu: [{label:'Sobre',click: () => aboutWindow()}]
   }
 ]
-//--------------------------------------------------------------------------------------------------------------------------------
-// == Clientes = CRUD
+
+
 ipcMain.on('new-client', async (event,client)=>{
-  console.log(client)
   try {
     const newClient = new clientModel({
       nomeClient: client.nameCli,
@@ -182,7 +179,7 @@ ipcMain.on('new-client', async (event,client)=>{
          
       })
   } catch (error) {
-       // se o código de erro for 11000 (cpf duplicado) enviar uma mensagem ao usuário
+       
        if(error.code === 11000) {
         dialog.showMessageBox({
             type: 'error',
@@ -191,15 +188,15 @@ ipcMain.on('new-client', async (event,client)=>{
             buttons: ['OK']
         }).then((result) => {
             if (result.response === 0) {
-                // limpar a caixa de input do cpf, focar esta caixa e deixar a borda em vermelho
+                
             }
         })
     }
     console.log(error)
   }
 })
-//======================================
-//relatorio do clientes
+
+
 async function relatorioClientes() {
   try {
       const clientes = await clientModel.find().sort({nomeClient:1})
@@ -254,7 +251,7 @@ async function relatorioClientes() {
   }
 }
 
-//relatorio das OS ABERTA
+
 async function relatorioOS() {
   try {
     const clientes = await osModel.find({ status: 'aberta' }).sort({ previsaoEntrega: 1 })
@@ -367,7 +364,7 @@ async function relatorioOSconcluida() {
     console.log(error)
   }
 }
-//================================================================================
+
 ipcMain.on('validate-search', ()=>{
   dialog.showMessageBox({
     type: 'warning',
@@ -379,9 +376,9 @@ ipcMain.on('validate-search', ()=>{
 })
 ipcMain.on('search-name', async(event,name)=>{
   try {
-    //const dataClient  = await clientModel.find({nomeClient: new RegExp(name, 'i')}|| { cpfCliente: new RegExp(name, 'i')})
-    //console.log(dataClient)
-    // teste
+    
+    
+    
     const dataClient  = await clientModel.find({
       $or: [
         { nomeClient: new RegExp(name, 'i') },
@@ -410,11 +407,6 @@ ipcMain.on('search-name', async(event,name)=>{
   } catch (error) {
     console.log(error)  }
 })
-
-
-//===================================================================================================================================
-// CRUD Os
-// Validação de busca (preenchimento obrigatório Id Cliente-OS)
 ipcMain.on('validate-client', (event) => {
   dialog.showMessageBox({
       type: 'warning',
@@ -422,7 +414,7 @@ ipcMain.on('validate-client', (event) => {
       message: "É obrigatório vincular o cliente na Ordem de Serviço",
       buttons: ['OK']
   }).then((result) => {
-      //ação ao pressionar o botão (result = 0)
+      
       if (result.response === 0) {
           event.reply('set-search')
       }
@@ -456,23 +448,23 @@ ipcMain.on('new-os', async (event, os) => {
       title: "OS adicionada com sucesso",
       message: "Deseja imprimir a Ordem de Serviço agora?",
       buttons: ['Sim', 'Não'],
-      defaultId: 0, // 'Sim'
-      cancelId: 1   // 'Não'
+      defaultId: 0, 
+      cancelId: 1   
     })
 
     if (result.response === 0) {
-      // Chamar função de impressão diretamente com o ID da OS
+      
       imprimirOS(newOs._id)
     }
 
-    event.reply('reset-form') // Resetar o formulário após o processo
+    event.reply('reset-form') 
   } catch (error) {
     console.error("Erro ao criar nova OS:", error)
   }
 })
-//=============================================== Buscar OS========================================
+
 ipcMain.on('search-os', (event) =>{
-  //console.log("teste: busca OS")
+  
   prompt({
     title: 'Buscar OS',
     label: 'Digite o número da OS:',
@@ -485,14 +477,14 @@ ipcMain.on('search-os', (event) =>{
 }).then(async(result) => {
     if (result !== null) {
         
-        //buscar a os no banco pesquisando pelo valor do result (número da OS)
+        
         if (mongoose.Types.ObjectId.isValid(result)) {
           try {
               const dataOS = await osModel.findById(result)
               if (dataOS) {
-                  console.log(dataOS) // teste importante
-                  // enviando os dados da OS ao rendererOS
-                  // OBS: IPC só trabalha com string, então é necessário converter o JSON para string JSON.stringify(dataOS)
+                  
+                  
+                  
                   event.reply('render-os', JSON.stringify(dataOS))
               } else {
                   dialog.showMessageBox({
@@ -516,16 +508,8 @@ ipcMain.on('search-os', (event) =>{
     } 
 })
 })
-//ipcMain.on('search-os', async(event,nameOS)=>{
-  //try {
-    //const dataOS  = await osModel.find({nomeClient: new RegExp(name, 'i')})
-    //console.log(dataClient)
-    //event.reply ('render-client', JSON.stringify(dataClient))
-    
-  //} catch (error) {
-    //console.log(error)  }
-//})
-// buscar cliente para vincular
+
+
 ipcMain.on('search-clients', async (event)=>{
   try {
     const clients = await clientModel.find().sort({ nomeClient: 1})
@@ -535,9 +519,9 @@ ipcMain.on('search-clients', async (event)=>{
   }
 })
 
-// =============== CRUD DELETE =============================
+
 ipcMain.on('delete-client',async(event, id)=> {
-  console.log(id)
+ 
   try {
     const {response } = await dialog.showMessageBox(client,{
       type: 'warning',
@@ -554,7 +538,7 @@ ipcMain.on('delete-client',async(event, id)=> {
   }
 })
 ipcMain.on('delete-OS',async(event, id)=> {
-  console.log("TESTE")
+ 
   try {
     const {response } = await dialog.showMessageBox(os,{
       type: 'warning',
@@ -570,15 +554,15 @@ ipcMain.on('delete-OS',async(event, id)=> {
     console.log(error)
   }
 })
-//Crud UPDATE ====================================================
+
  
 ipcMain.on('update-client', async (event, client) => {
-  console.log(client)//Teste importante do recebimento dos dados do cliente
+  
 
   try {
-      //Criar uma nova estrutura de dados usando a classe modelo
-      //Atenção! OS atributos precisam ser identicos ao modelo de dados clientes.js
-      //e os valores são definidos pelo conteúdo ao objeto client
+      
+      
+      
       const updateClient = await clientModel.findByIdAndUpdate(
           client.idCli,
           {
@@ -599,17 +583,17 @@ ipcMain.on('update-client', async (event, client) => {
           }
       )
 
-      //Messagem de confirmação
+      
       dialog.showMessageBox({
-          //Customização
+          
           type: 'info',
           title: "Aviso",
           message: "Dados do cliente alterados com sucesso",
           buttons: ['OK']
       }).then((result) => {
-          //Ação ao pressionar o botão
+          
           if (result.response === 0) {
-              //Enviar um pedido para o renderizador limpar os campos e resetar as configurações pré definidas (rotulo preload)
+              
               event.reply('reset-form')
           }
       });
@@ -618,23 +602,21 @@ ipcMain.on('update-client', async (event, client) => {
   }
 })
 ipcMain.on('update-OS', async (event, OSupd) => {
-  console.log("Recebido:", OSupd)
-  console.log("ID bruto recebido:", OSupd._id)
 
   try {
-    // 🛠️ Converte ID corretamente
+    
     const idConvertido = new Types.ObjectId(OSupd._id.trim())
 
-    // ✅ Testa se o documento existe com findById
+    
     const docTest = await osModel.findById(idConvertido)
-    console.log("📄 Documento encontrado com findById:", docTest)
+    
 
     if (!docTest) {
       dialog.showErrorBox("Erro", "Documento com esse ID não encontrado.")
       return
     }
 
-    // 🎯 Faz o update
+    
     const updateOS = await osModel.findByIdAndUpdate(
       idConvertido,
       {
@@ -655,7 +637,6 @@ ipcMain.on('update-OS', async (event, OSupd) => {
       { new: true }
     )
 
-    console.log("🟢 Resultado do update:", updateOS)
 
     if (!updateOS) {
       dialog.showErrorBox("Erro", "Erro ao atualizar OS (update nulo).")
@@ -679,10 +660,10 @@ ipcMain.on('update-OS', async (event, OSupd) => {
   }
 })
 
-//FIM Crud UPDATE ====================================================
-// Impressao OS
+
+
 ipcMain.on('print-os', (event) =>{
-  //console.log("teste: busca OS")
+
   prompt({
     title: 'Imprimir OS',
     label: 'Digite o número da OS:',
@@ -695,32 +676,30 @@ ipcMain.on('print-os', (event) =>{
 }).then(async(result) => {
     if (result !== null) {
         
-        //buscar a os no banco pesquisando pelo valor do result (número da OS)
+        
         if (mongoose.Types.ObjectId.isValid(result)) {
           try {
             const dataOS = await osModel.findById(result)
             if (dataOS && dataOS !== null) {
-                console.log(dataOS) // teste importante
                 const dataClient  = await clientModel.find({ _id: dataOS.idCliente}) 
-                console.log(dataClient)
-                // Impressão 
-// Impressão 
+                
+
 const doc = new jsPDF('p', 'mm', 'a4')
 
-// Logo ajustada para o topo
+
 const imagePath = path.join(__dirname, 'src', 'public', 'img', 'logo.png')
 const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' })
-doc.addImage(imageBase64, 'PNG', 5, -23, 80, 80) // x=10, y=10, largura=40, altura=20
+doc.addImage(imageBase64, 'PNG', 5, -23, 80, 80) 
 
-// Título e cabeçalho
+
 doc.setFontSize(18)
-doc.text(`Ordem de Serviço - ${dataOS._id}`, 14, 40) // abaixo da logo
+doc.text(`Ordem de Serviço - ${dataOS._id}`, 14, 40) 
 
-// Começo do conteúdo
+
 doc.setFontSize(12)
 let y = 50
 
-// Dados do Cliente
+
 const client = dataClient[0] || {}
 
 doc.text("Dados do Cliente:", 14, y)
@@ -740,7 +719,7 @@ y += 6
 doc.text(`Cidade/UF: ${client.cityCliente || ''} - ${client.ufCliente || ''}`, 14, y)
 y += 10
 
-// Dados da OS
+
 doc.text("Informações da Ordem de Serviço:", 14, y)
 y += 6
 doc.text(`Status: ${dataOS.status}`, 14, y)
@@ -770,7 +749,7 @@ y += 6
 doc.text(`Total: R$ ${dataOS.total.toFixed(2)}`, 14, y)
 y += 10
 
-// Termo de Serviço com mesmo tamanho de fonte
+
 doc.setFontSize(12)
 const termo = `
 Termo de Serviço e Garantia
@@ -787,20 +766,20 @@ O cliente declara estar ciente e de acordo com os termos acima.`
 
 doc.text(termo, 14, y, { maxWidth: 180 })
 
-// Ajustar o y para o fim do termo
-y += 100// ajuste conforme necessário para seu layout
 
-// Espaço para assinatura do cliente
+y += 100
+
+
 doc.setFontSize(12)
 doc.text("_________________________________________", 14, y)
 doc.text("Assinatura do Cliente", 14, y + 6)
 
-// Espaço para data de retirada
+
 doc.text("_________________________________________", 120, y)
 doc.text("Data de Retirada", 120, y + 6)
 
 
-// Caminho e abertura do arquivo
+
 const tempDir = app.getPath('temp')
 const filePath = path.join(tempDir, 'os.pdf')
 doc.save(filePath)
@@ -852,7 +831,7 @@ const imprimirOS = async (osId) => {
 
     const dataClient = await clientModel.find({ _id: dataOS.idCliente })
 
-    // Geração do PDF (você já tem esse trecho pronto)
+    
     const doc = new jsPDF('p', 'mm', 'a4')
     const imagePath = path.join(__dirname, 'src', 'public', 'img', 'logo.png')
     const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' })
@@ -942,7 +921,7 @@ O cliente declara estar ciente e de acordo com os termos acima.`
   }
 }
 
-// Alert erro 
+
 ipcMain.on('show-error-box', (event, message) => {
   dialog.showMessageBox({
     type: 'error',

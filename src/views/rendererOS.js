@@ -1,9 +1,6 @@
 
-//===================================================================
 
-//const OS = require("../models/OS")
 
-//Pegar as informações da Os
 let frmOS = document.getElementById("frmOS")
 let statusOS = document.getElementById("maintenance-type")
 let funcioOs = document.getElementById("inputNameFuncionario")
@@ -21,30 +18,7 @@ let formas = document.getElementById("maintenance-typeD")
 let os = document.getElementById('inputNumeroOS')
 let dateOS = document.getElementById('inputdataClient')
 let idOS = document.getElementById('inputNumeroOS')
-// //===================================================================
-// frmOS.addEventListener("submit", async(event)=>{
-//     event.preventDefault()
-//     console.log(statusOS.value,funcioOs.value,bikeOs.value,numS.value,cor.value,manutencao.value,previsao.value,obsC.value,obsF.value,pecas.value,acessorios.value,total.value,formas.value)
 
-//     const os = {
-//         status: statusOS.value,
-//         fun: funcioOs.value,
-//         bike: bikeOs.value,
-//         numeroQuadro: numS.value,
-//         cor: cor.value,
-//         manutencao: manutencao.value,
-//         previsaoEntrega: previsao.value,
-//         obsCliente: obsC.value,
-//         obsFuncionario: obsF.value,
-//         pecas: pecas.value,
-//         acessorios: acessorios.value,
-//         total: total.value,
-//         formasPagamento: formas.value
-//     }
-//     api.newOs(os)
-// })
-
-//====== Reset form =======================================================================
 
 
 
@@ -56,7 +30,6 @@ function resetForm() {
         resetForm()
     })
     
-    // buscar cliente
 const foco = document.getElementById('inputNameClient')
 document.addEventListener('DOMContentLoaded', () => {
     btnUpdate.disabled = true
@@ -66,15 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     foco.focus()
 })
-// ================= CRUD READ ============================================================
-//function BuscarOs (){
-  //  let nameOs = document.getElementById('inputNameClient').value
-    //console.log(nameOs)
-    //api.searchOsClient(nameOs)
-    
 
-//}
-// =============== Busca avançada
 const input = document.getElementById('inputNameClient')
 const suggestionList = document.getElementById('viewListSuggestion')
 let idClient = document.getElementById('inputIdClient')
@@ -86,7 +51,7 @@ let arrayClients = []
 
 input.addEventListener('input',() =>{
     const search = input.value.toLowerCase()
-   // console.log(search)
+   
     api.searchClients()
     api.listClients((event,clients)=>{
         const dataClients = JSON.parse(clients)
@@ -94,7 +59,7 @@ input.addEventListener('input',() =>{
         const result = arrayClients.filter( c=>
             c.nomeClient && c.nomeClient.toLowerCase().includes(search)
         ).slice(0,10)
-       // console.log(result)
+       
         suggestionList.innerHTML = ""
         result.forEach(c => {
             const item = document.createElement('li')
@@ -119,33 +84,24 @@ input.addEventListener('input',() =>{
     })
 })
 
-//================ Buscar OS ============================================================
 
 
 function inputOS() {
     api.searchOS()
  }
  function excluirOS() {
-    console.log(idOS.value)
+    
     api.deleteOS(idOS.value)
 }
- //======================================
 
-//Evento associado ao botão submit (uso das validações do html)
 frmOS.addEventListener('submit', async (event) => {
-    //evitar o comportamento padrão do submit que é enviar os dados do formulário e reiniciar o documento html
     event.preventDefault()
-    // validação do campo obrigatório 'idClient' (validação html não funciona via html para campos desativados)
     if (idClient.value === "") {
         api.validateClient()
     } else {
-        // Teste importante (recebimento dos dados do formuláro - passo 1 do fluxo)
-        //console.log(OS.value, idClient.value, statusOS.value, funcioOs.value, bikeOs.value, numS.value, cor.value, manutencao.value, previsao.value, total.value)
         if (os.value === "") {
-            //Gerar OS
-            //Criar um objeto para armazenar os dados da OS antes de enviar ao main
             const os = {
-                _id: idOS.value.trim(), // <- ESSENCIAL para encontrar a OS
+                _id: idOS.value.trim(),
                 idClient: idClient.value,
                 status: statusOS.value,
                 fun: funcioOs.value,
@@ -161,16 +117,10 @@ frmOS.addEventListener('submit', async (event) => {
                 total: total.value,
                 formasPagamento: formas.value
             }
-            // Enviar ao main o objeto os - (Passo 2: fluxo)
-            // uso do preload.js
             api.newOs(os)
         } else {
-        //Editar OS
-        //Executar o método para alterar os dados do cliente
-        //Crair um objeto para armazenar os dados do cliente antes de enviar ao main 
-          console.log(idOS.value)
                 const OSupd = {
-                _id: idOS.value.trim(), // <- ESSENCIAL para encontrar a OS    
+                _id: idOS.value.trim(),
                 idClient: idClient.value,
                 status: statusOS.value,
                 fun: funcioOs.value,
@@ -187,24 +137,18 @@ frmOS.addEventListener('submit', async (event) => {
                 formasPagamento: formas.value
         }
             api.updateOS(OSupd)
-            //Enviar ao main o objeto client - Passo 2 (fluxo)
-            //Uso do preload.js
         }
     }
 })
 
-// == Fim CRUD Create/Update ==================================
-// == Buscar OS - CRUD Read ===================================
 
 function findOS() {
     api.searchOS()
 }
 
 api.renderOS((event, dataOS) => {
-    console.log(dataOS)
+ 
     const os = JSON.parse(dataOS)
-    // preencher os campos com os dados da OS
-    // formatar data:
     const data = new Date(os.data)
     const formatada = data.toLocaleString("pt-BR", {
         day: "2-digit",
@@ -240,8 +184,6 @@ api.renderOS((event, dataOS) => {
     
 })
 
-// == Fim - Buscar OS - CRUD Read 
-// == Imprimir OS 
 function generateOS(){
     api.printOS()
 }
